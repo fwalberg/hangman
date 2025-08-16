@@ -1,6 +1,7 @@
 package com.dio.hangman.model;
 
 import com.dio.hangman.exception.GameIsFinishedException;
+import com.dio.hangman.exception.LetterAlreadyInputedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,10 @@ public class HangmanGame {
                 .filter(c -> c.getCharacter() == character)
                 .toList();
 
+        if (this.failAttempts.contains(character)) {
+            throw new LetterAlreadyInputedException("A letra '" + character + "' já foi informada.");
+        }
+
         if (found.isEmpty()) {
             failAttempts.add(character);
 
@@ -78,6 +83,10 @@ public class HangmanGame {
             }
             rebuildHangman(this.hangmanPaths.removeFirst());
             return;
+        }
+
+        if (found.getFirst().isVisible()) {
+            throw new LetterAlreadyInputedException("A letra '" + character + "' já foi informada.");
         }
 
         this.characters.forEach(c -> {
