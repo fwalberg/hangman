@@ -4,49 +4,56 @@ import com.dio.hangman.exception.GameIsFinishedException;
 import com.dio.hangman.exception.LetterAlreadyInputtedException;
 import com.dio.hangman.model.HangmanChar;
 import com.dio.hangman.model.HangmanGame;
+import com.dio.hangman.utils.DictionaryService;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Stream;
 
 public class App {
 
     private final static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        List<HangmanChar> characters = Stream.of(args)
-                .map(a -> a.toLowerCase().charAt(0))
-                .map(HangmanChar::new).toList();
+        try {
+            var selectedWord = DictionaryService.getRandomWordFromDictionary();
+            System.out.println("Palavra selecionada: " + selectedWord); // Apenas para debug e verificacao...
+            
+            List<HangmanChar> characters = selectedWord.chars()
+                    .mapToObj(c -> new HangmanChar((char) c))
+                    .toList();
 
-        System.out.println(characters);
-        HangmanGame hangmanGame = new HangmanGame(characters);
-        System.out.println("Bem-vindo ao jogo da forca, tente adivinhar a palavra, boa sorte");
-        System.out.println(hangmanGame);
+            HangmanGame hangmanGame = new HangmanGame(characters);
+            System.out.println("Bem-vindo ao jogo da forca, tente adivinhar a palavra, boa sorte");
+            System.out.println(hangmanGame);
 
-        int option = -1;
-        while (true) {
-            System.out.println("Selecione uma das opções:");
-            System.out.println("1 - Informar uma letra");
-            System.out.println("2 - Verificar status do jogo");
-            System.out.println("3 - Sair do jogo");
+            int option = -1;
+            while (true) {
+                System.out.println("Selecione uma das opções:");
+                System.out.println("1 - Informar uma letra");
+                System.out.println("2 - Verificar status do jogo");
+                System.out.println("3 - Sair do jogo");
 
-            option = scanner.nextInt();
+                option = scanner.nextInt();
 
-            switch(option){
-                case 1 -> inputCharacter(hangmanGame);
-                case 2 -> showGameStatus(hangmanGame);
-                case 3 -> System.exit(0);
-                default -> System.out.println("Opção inválida");
+                switch(option){
+                    case 1 -> inputCharacter(hangmanGame);
+                    case 2 -> showGameStatus(hangmanGame);
+                    case 3 -> System.exit(0);
+                    default -> System.out.println("Opção inválida");
+                }
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-private static void showGameStatus(final HangmanGame hangmanGame) {
-    System.out.println(hangmanGame.getHangmanGameStatus());
-    System.out.println(hangmanGame);
-}
+    private static void showGameStatus(final HangmanGame hangmanGame) {
+        System.out.println(hangmanGame.getHangmanGameStatus());
+        System.out.println(hangmanGame);
+    }
 
- private static void inputCharacter(final HangmanGame hangmanGame) {
+    private static void inputCharacter(final HangmanGame hangmanGame) {
         System.out.println("Informe uma letra");
         char character = scanner.next().charAt(0);
         try {
